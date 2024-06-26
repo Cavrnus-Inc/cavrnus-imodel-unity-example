@@ -50,20 +50,15 @@ namespace Bentley
         private readonly Dictionary<MaterialKey, Material> _cachedMaterials = new Dictionary<MaterialKey, Material>();
         private readonly TextureCache _textureCache;
 
-        private CavrnusSpaceConnection cavrnusSpaceConnection;
         private readonly string remoteSelection;
 
-        public ElementGameObjectCreator(CavrnusSpaceConnection cavrnusSpaceConnection, Material opaqueTemplate, Material transparentTemplate,
-                                        TextureCache textureCache)
+        public ElementGameObjectCreator(Material opaqueTemplate, Material transparentTemplate, TextureCache textureCache)
         {
-            this.cavrnusSpaceConnection = cavrnusSpaceConnection;
             _opaqueTemplate = opaqueTemplate;
             _transparentTemplate = transparentTemplate;
             _textureCache = textureCache;
 
             _rootGameObject = new GameObject("iModel Root");
-
-            remoteSelection = cavrnusSpaceConnection.GetStringPropertyValue("Data", "CurrentlySelected");
         }
 
         public void Handle(ElementMeshReader.Result meshReaderResult)
@@ -105,10 +100,6 @@ namespace Bentley
             go.AddComponent<MeshFilter>().sharedMesh = unityMesh;
             go.AddComponent<MeshRenderer>().sharedMaterial = material;
 
-            if ( go.transform.name == remoteSelection) {
-                cavrnusSpaceConnection.PostStringPropertyUpdate("Data", "SelectedObject", remoteSelection);
-            }
-            
             meshReaderResult.Dispose();
         }
     }

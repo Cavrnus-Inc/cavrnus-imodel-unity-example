@@ -57,7 +57,10 @@ namespace Bentley
             // Wait for 5 seconds
             await Task.Delay(5000);
             
-            cavrnusSpaceConnection.BindStringPropertyValue("Data", "CurrentlySelected", CavrnusSetSelection);
+            cavrnusSpaceConnection.BindStringPropertyValue("Data", "CurrentlySelected", id => {
+                ClearSelection();
+                CavrnusSetSelection(id);
+            });
         }
 
         public void OnUpdate()
@@ -102,7 +105,7 @@ namespace Bentley
             if (!Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hitInfo))
                 return;
             
-            _selectedRenderer = hitInfo.transform.GetComponent<MeshRenderer>();
+            // _selectedRenderer = hitInfo.transform.GetComponent<MeshRenderer>();
             
             cavrnusSpaceConnection.PostStringPropertyUpdate("Data", "CurrentlySelected",hitInfo.transform.GetComponent<MeshRenderer>().name);
 
@@ -132,7 +135,7 @@ namespace Bentley
             }
             
             _selectedRenderer = selectedOb.GetComponent<MeshRenderer>();
-            _selectedOriginalMaterial = _selectedRenderer.sharedMaterial;
+            _selectedOriginalMaterial = _selectedRenderer.material;
             _selectedRenderer.material = _selectionMaterial;
 
             var propRequestWrapper = new RequestWrapper

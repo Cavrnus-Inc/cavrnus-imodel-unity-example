@@ -57,7 +57,7 @@ namespace Bentley
             _graphicsStreaming = new GraphicsStreaming(_backend, _meshRequestManager, _coordinateUtility);
 
             _textureCache = new TextureCache(_backend);
-            _meshHandler = new ElementGameObjectCreator(spaceConn, OpaqueMaterial, TransparentMaterial, _textureCache);
+            _meshHandler = new ElementGameObjectCreator(OpaqueMaterial, TransparentMaterial, _textureCache);
         }
 
         private void OnDestroy() { _backend?.Shutdown(); }
