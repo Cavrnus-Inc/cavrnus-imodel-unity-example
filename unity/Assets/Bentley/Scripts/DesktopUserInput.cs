@@ -45,7 +45,7 @@ namespace Bentley
             WaitAndBind();
             
             _backend = backend;
-            _selectionMaterial = new Material(opaqueMaterial) { color = Color.magenta };
+            _selectionMaterial = new Material(opaqueMaterial) { color = new Color(0.53f, 0.81f, 0.98f) };
             _savedViews = savedViews;
 
             _camera = Camera.main;
