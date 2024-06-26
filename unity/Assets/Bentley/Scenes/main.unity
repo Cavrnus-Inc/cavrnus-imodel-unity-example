@@ -143,6 +143,12 @@ PrefabInstance:
       objectReference: {fileID: 1209016907}
     - target: {fileID: 3843911914220772793, guid: bc329ed98d4c9a44a967d563bb09778d,
         type: 3}
+      propertyPath: RemoteUserAvatar
+      value: 
+      objectReference: {fileID: 7693442957038673469, guid: 72409afa8a6c2494b823110aae7a6a0b,
+        type: 3}
+    - target: {fileID: 3843911914220772793, guid: bc329ed98d4c9a44a967d563bb09778d,
+        type: 3}
       propertyPath: AutomaticSpaceJoinId
       value: itwin-unity
       objectReference: {fileID: 0}
