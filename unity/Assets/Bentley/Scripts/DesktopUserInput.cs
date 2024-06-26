@@ -3,8 +3,12 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Bentley.Protobuf;
+using CavrnusSdk.API;
 using UnityEngine;
 
 namespace Bentley
@@ -32,14 +36,28 @@ namespace Bentley
         private const float PropertiesBoxWidth = 400;
         private float _propertiesBoxHeight;
 
-        public DesktopUserInput(Material opaqueMaterial, BackendRouter backend, SavedViews savedViews)
+        private CavrnusSpaceConnection cavrnusSpaceConnection;
+
+        public DesktopUserInput(CavrnusSpaceConnection cavrnusSpaceConnection, Material opaqueMaterial, BackendRouter backend, SavedViews savedViews)
         {
+            this.cavrnusSpaceConnection = cavrnusSpaceConnection;
+            
+            WaitAndBind();
+            
             _backend = backend;
             _selectionMaterial = new Material(opaqueMaterial) { color = Color.magenta };
             _savedViews = savedViews;
 
             _camera = Camera.main;
             _cameraTransform = _camera.transform;
+        }
+        
+        async Task WaitAndBind()
+        {
+            // Wait for 5 seconds
+            await Task.Delay(5000);
+            
+            cavrnusSpaceConnection.BindStringPropertyValue("Data", "CurrentlySelected", CavrnusSetSelection);
         }
 
         public void OnUpdate()
@@ -83,8 +101,37 @@ namespace Bentley
             ClearSelection();
             if (!Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out RaycastHit hitInfo))
                 return;
-
+            
             _selectedRenderer = hitInfo.transform.GetComponent<MeshRenderer>();
+            
+            cavrnusSpaceConnection.PostStringPropertyUpdate("Data", "CurrentlySelected",hitInfo.transform.GetComponent<MeshRenderer>().name);
+
+            // _selectedOriginalMaterial = _selectedRenderer.sharedMaterial;
+            // _selectedRenderer.material = _selectionMaterial;
+            //
+            // var propRequestWrapper = new RequestWrapper
+            // {
+            //     ElementPropertiesRequest = new ElementPropertiesRequest { ElementId = _selectedRenderer.name }
+            // };
+            // _backend.SendRequest(propRequestWrapper, propReplyWrapper =>
+            // {
+            //     var propStringBuilder = new StringBuilder(512);
+            //     BuildPropertiesString(propStringBuilder, propReplyWrapper.ElementPropertiesReply.Root, "");
+            //
+            //     _propertiesText = new GUIContent(propStringBuilder.ToString());
+            //     _propertiesBoxHeight = _propertiesBoxGuiStyle.CalcHeight(_propertiesText, PropertiesBoxWidth);
+            // });
+        }
+
+        private void CavrnusSetSelection(string remoteId)
+        {
+            var selectedOb = GameObject.Find(remoteId);
+            if (selectedOb == null) {
+                Debug.Log($"Can't find: {remoteId}!");
+                return;
+            }
+            
+            _selectedRenderer = selectedOb.GetComponent<MeshRenderer>();
             _selectedOriginalMaterial = _selectedRenderer.sharedMaterial;
             _selectedRenderer.material = _selectionMaterial;
 

@@ -3,6 +3,7 @@
 * See LICENSE.md in the project root for license terms and full copyright notice.
 *--------------------------------------------------------------------------------------------*/
 
+using CavrnusSdk.API;
 using UnityEngine;
 
 namespace Bentley
@@ -25,7 +26,18 @@ namespace Bentley
 
         private IUserInput _userInput;
 
+        private CavrnusSpaceConnection spaceConn;
+
         private void Start()
+        {
+            CavrnusFunctionLibrary.AwaitAnySpaceConnection(connection => {
+                spaceConn = connection;
+
+                Setup();
+            });
+        }
+
+        private void Setup()
         {
             Physics.queriesHitBackfaces = true;
 
@@ -38,18 +50,18 @@ namespace Bentley
             });
             _coordinateUtility = new CoordinateUtility(_backend);
             _savedViews = new SavedViews(Camera.main, _coordinateUtility, _backend);
-            _userInput = new DesktopUserInput(OpaqueMaterial, _backend, _savedViews);
+            _userInput = new DesktopUserInput(spaceConn, OpaqueMaterial, _backend, _savedViews);
 
             _meshReader = new ElementMeshReader(_coordinateUtility);
             _meshRequestManager = new ExportMeshRequestManager(_backend, _meshReader);
             _graphicsStreaming = new GraphicsStreaming(_backend, _meshRequestManager, _coordinateUtility);
 
             _textureCache = new TextureCache(_backend);
-            _meshHandler = new ElementGameObjectCreator(OpaqueMaterial, TransparentMaterial, _textureCache);
+            _meshHandler = new ElementGameObjectCreator(spaceConn, OpaqueMaterial, TransparentMaterial, _textureCache);
         }
 
-        private void OnDestroy() { _backend.Shutdown(); }
-        private void OnGUI() { _userInput.OnGUI(); }
+        private void OnDestroy() { _backend?.Shutdown(); }
+        private void OnGUI() { _userInput?.OnGUI(); }
 
         private void Update()
         {
